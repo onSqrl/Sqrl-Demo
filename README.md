@@ -7,7 +7,7 @@ There are 3 Traits defined for Color, Shape and Count. Color is what color the S
 
 Two of the Traits are setup to be controlled by passing a parameter through the URL. These are Color and Shape and are defined by the window.$traitFields object.
 
-The Count trait is a trait that's setup to not be controlled and is randomly chosen using the sqrlSeed parameter which is used to seed the PRNG included in the required <script> in the <head> of the index.html.
+The Count trait is a trait that's setup to not be controlled and is randomly chosen using the sqrlSeed parameter which is used to seed the PRNG included in the required <script> in the head of the index.html.
 
 The Project is hosted here: https://projects.onsqrl.art/sqrl-demo/index.html
 

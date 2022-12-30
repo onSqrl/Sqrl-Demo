@@ -34,9 +34,11 @@ This demonstrates several requirements for a Project to work on the Sqlr platfor
   <li>how to define contolled Traits with the window.$traitFields object</li>
   <li>how to use conditional logic to look for Trait parameter(s) in the URL and if not found, pick a random value for the Trait</li>
   <li>how to have a Trait that isn't controlled through a parameter and is always random respective to the sqrlSeed</li>
+  <li>how to build the window.$traitValues object so the Sqrl platform knows the Traits for each iteration</li>
   <li>how to include the required script in the head of the index.html file</li>
   <li>scripts in the head to properly load dependencies like the p5js.min.js and the style.css files</li>
   <li>how to load the p5js code (sketch.js) in the body of the index.html file</li>
+  <li>how to make the output dimensionless or resolution agnostic through the M = SHORT / DEFAULT_SIZE variable and multiplying the shape sizes by M</li>
   </ul>
 
 If you have questions or need help and support, please join our <a href="https://discord.gg/XZ6AqN95" target="_blank">Discord server</a> and seek guideance from the community or team.

@@ -29,7 +29,8 @@ https://projects.onsqrl.art/sqrl-demo/index.html?sqrlSeed=123456789ABCDEF&color=
 
 The code always outputs Green colored Circles but the Count trait is still random and can be any number between 200 and 600.
 
-This demonstrates several requirements for a Project to work on the Sqlr platform including:
+
+This code demonstrates several requirements for a Project to work on the Sqlr platform including:
 <ul>
   <li>how to define contolled Traits with the window.$traitFields object</li>
   <li>how to use conditional logic to look for Trait parameter(s) in the URL and if not found, pick a random value for the Trait</li>

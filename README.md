@@ -12,9 +12,12 @@ The Count trait is a trait that's setup to not be controlled and is randomly cho
 The Project is hosted here: https://sqrl-root.s3.filebase.com/sqrl-demo/index.html
 
 The sqrlSeed parameter must always be passed into the URL for the code to work like this:
-https://sqrl-root.s3.filebase.com/sqrl-demo/index.html?sqrlSeed=123456789ABCDEF
-
+https://sqrl-root.s3.filebase.com/sqrl-demo/index.html?sqrlSeed=0123456789ABCDEF
+  
 If neither of the two parameters for color or shape are passed in, the code chooses a random color and shape from the options Red, Green, Blue and Circle, Square, Ellipse respectively by using the random_choice function of the PRNG which gets seeded by the sqrlSeed parameter.
+  
+Notice if you pass in a different seed value, a different output is generated, like this:
+https://sqrl-root.s3.filebase.com/sqrl-demo/index.html?sqrlSeed=LNaja1cn8cJSmAwgL6ZoV6cfrjP99EMxnm8mptE664DuzUisGwCtjnwbLrfB37SC 
 
 If we pass a color value through the URL like this:
 https://sqrl-root.s3.filebase.com/sqrl-demo/index.html?sqrlSeed=123456789ABCDEF&color=Green

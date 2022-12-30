@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Sqrl Demo</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Shane Richardson (Gonz0x)" />
+    <script id="sqrl-script">
+      // only edit the parts specified in comments below for testing vs production
+      const sqrlParams = new Proxy(
+        new URLSearchParams(window.location.search),
+        {
+          get: (searchParams, prop) => searchParams.get(prop),
+        }
+      );
+
+      class Random {
+        constructor() {
+          this.useA = false;
+          let sfc32 = function (uint128Hex) {
+            let a = parseInt(uint128Hex.substr(0, 16), 32);
+            let b = parseInt(uint128Hex.substr(16, 16), 32);
+            let c = parseInt(uint128Hex.substr(32, 16), 32);
+            let d = parseInt(uint128Hex.substr(48, 16), 32);
+            return function () {
+              a |= 0;
+              b |= 0;
+              c |= 0;
+              d |= 0;
+              let t = (((a + b) | 0) + d) | 0;
+              d = (d + 1) | 0;
+              a = b ^ (b >>> 9);
+              b = (c + (c << 3)) | 0;
+              c = (c << 21) | (c >>> 11);
+              c = (c + t) | 0;
+              return (t >>> 0) / 4294967296;
+            };
+          };
+
+          this.prngA = new sfc32(sqrlSeed.substr(0, 32));
+          this.prngB = new sfc32(sqrlSeed.substr(32, 32));
+          for (let i = 0; i < 1e6; i += 2) {
+            this.prngA();
+            this.prngB();
+          }
+        }
+
+        // random number between 0 (inclusive) and 1 (exclusive)
+        random_dec() {
+          this.useA = !this.useA;
+          return this.useA ? this.prngA() : this.prngB();
+        }
+
+        // random number between a (inclusive) and b (exclusive)
+        random_num(a, b) {
+          return a + (b - a) * this.random_dec();
+        }
+
+        // random integer between a (inclusive) and b (inclusive)
+        // requires a < b for proper probability distribution
+        random_int(a, b) {
+          return Math.floor(this.random_num(a, b + 1));
+        }
+
+        // random boolean with p as percent likelihood of true
+        random_bool(p) {
+          return this.random_dec() < p;
+        }
+
+        // random value in an array of items
+        random_choice(list) {
+          return list[this.random_int(0, list.length - 1)];
+        }
+      }
+
+      // the following two lines are only used for testing during development in your local
+      // environment and deleted for commented out for final .zip upload to Sqrl
+
+      // let alphabet = "123456789abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
+      // var sqrlSeed = Array(64).fill(0).map(_=>alphabet[(Math.random()*alphabet.length)|0]).join('')
+
+      // the following line is required in final .zip upload to Sqrl and deleted or commented
+      // out during development in your local environment
+
+      let sqrlSeed = new URLSearchParams(window.location.search).get(
+        "sqrlSeed"
+      );
+
+      let R = new Random(sqrlSeed);
+
+      // once function is called the message is logged multiple times until our preview captures
+      // the image
+      function sqrlPreview() {
+        const sqrlInterval = setInterval(() => {
+          console.log("sqrl preview triggered");
+        }, 444);
+        setTimeout(() => {
+          clearInterval(sqrlInterval);
+        }, 3000);
+      }
+    </script>
+    <script type="text/javascript">
+      var script1 = document.createElement("script");
+      script1.type = "text/javascript";
+      script1.src =
+        "" +
+        document.location.pathname.substr(
+          0,
+          document.location.pathname.lastIndexOf("/")
+        ) +
+        "/p5.min.js";
+      document.getElementsByTagName("head")[0].appendChild(script1);
+      var cssLink = document.createElement("link");
+      cssLink.rel = "stylesheet";
+      cssLink.type = "text/css";
+      cssLink.href =
+        "" +
+        document.location.pathname.substr(
+          0,
+          document.location.pathname.lastIndexOf("/")
+        ) +
+        "/style.css";
+      document.getElementsByTagName("head")[0].appendChild(cssLink);
+    </script>
+  </head>
+  <body></body>
+  <script>
+    var sketchScript = document.createElement("script");
+    script1.type = "text/javascript";
+    sketchScript.src =
+      "" +
+      document.location.pathname.substr(
+        0,
+        document.location.pathname.lastIndexOf("/")
+      ) +
+      "/sketch.js";
+    document.getElementsByTagName("body")[0].appendChild(sketchScript);
+  </script>
+</html>

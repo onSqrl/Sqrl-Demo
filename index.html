@@ -5,143 +5,126 @@
     <meta charset="utf-8" />
     <meta name="author" content="Shane Richardson (Gonz0x)" />
     <script id="sqrl-script">
-      // only edit the parts specified in comments below for testing vs production
-      const sqrlParams = new Proxy(
-        new URLSearchParams(window.location.search),
-        {
-          get: (searchParams, prop) => searchParams.get(prop),
-        }
-      );
-
-      class Randomnator {
-        constructor() {
-          function Mash() {
-            var n = 0xefc8249d;
-
-            var mash = function (data) {
-              data = data.toString();
-              for (var i = 0; i < data.length; i++) {
-                n += data.charCodeAt(i);
-                var h = 0.02519603282416938 * n;
-                n = h >>> 0;
-                h -= n;
-                h *= n;
-                n = h >>> 0;
-                h -= n;
-                n += h * 0x100000000; // 2^32
-              }
-              return (n >>> 0) * 2.3283064365386963e-10; // 2^-32
-            };
-
-            mash.version = "Mash 0.9";
-            return mash;
-          }
-
-          let runPRNG = function (seed) {
-            // Johannes Baagøe <baagoe@baagoe.com>, 2010
-            var args = Array.prototype.slice.call(arguments);
-            var s0 = 0;
-            var s1 = 0;
-            var s2 = 0;
-            var c = 1;
-
-            if (args.length == 0) {
-              args = [+new Date()];
+        const sqrlParams = new Proxy(
+            new URLSearchParams(window.location.search),
+            {
+                get: (searchParams, prop) => searchParams.get(prop),
             }
-            var mash = Mash();
-            s0 = mash(" ");
-            s1 = mash(" ");
-            s2 = mash(" ");
+        );
 
-            for (var i = 0; i < args.length; i++) {
-              s0 -= mash(args[i]);
-              if (s0 < 0) {
-                s0 += 1;
-              }
-              s1 -= mash(args[i]);
-              if (s1 < 0) {
-                s1 += 1;
-              }
-              s2 -= mash(args[i]);
-              if (s2 < 0) {
-                s2 += 1;
-              }
+        class Randomnator {
+            constructor() {
+                function Mash() {
+                    var n = 0xefc8249d;
+
+                    var mash = function (data) {
+                        data = data.toString();
+                        for (var i = 0; i < data.length; i++) {
+                            n += data.charCodeAt(i);
+                            var h = 0.02519603282416938 * n;
+                            n = h >>> 0;
+                            h -= n;
+                            h *= n;
+                            n = h >>> 0;
+                            h -= n;
+                            n += h * 0x100000000;
+                        }
+                        return (n >>> 0) * 2.3283064365386963e-10;
+                    };
+
+                    mash.version = "Mash 0.9";
+                    return mash;
+                }
+                let runPRNG = function (seed) {
+                    // Johannes Baagøe <baagoe@baagoe.com>, 2010
+                    var args = Array.prototype.slice.call(arguments);
+                    var s0 = 0;
+                    var s1 = 0;
+                    var s2 = 0;
+                    var c = 1;
+
+                    if (args.length == 0) {
+                        args = [+new Date()];
+                    }
+                    var mash = Mash();
+                    s0 = mash(" ");
+                    s1 = mash(" ");
+                    s2 = mash(" ");
+
+                    for (var i = 0; i < args.length; i++) {
+                        s0 -= mash(args[i]);
+                        if (s0 < 0) {
+                            s0 += 1;
+                        }
+                        s1 -= mash(args[i]);
+                        if (s1 < 0) {
+                            s1 += 1;
+                        }
+                        s2 -= mash(args[i]);
+                        if (s2 < 0) {
+                            s2 += 1;
+                        }
+                    }
+                    mash = null;
+
+                    var random = function () {
+                        var t = 2091639 * s0 + c * 2.3283064365386963e-10; // 2^-32
+                        s0 = s1;
+                        s1 = s2;
+                        return (s2 = t - (c = t | 0));
+                    };
+                    random.version = "Alea 0.9";
+
+                    return random;
+                };
+
+                this.prng = new runPRNG(sqrlSeed.substring(0, 64));
             }
-            mash = null;
 
-            var random = function () {
-              var t = 2091639 * s0 + c * 2.3283064365386963e-10; // 2^-32
-              s0 = s1;
-              s1 = s2;
-              return (s2 = t - (c = t | 0));
-            };
-            random.version = "Alea 0.9";
+            random_dec() {
+                return this.prng();
+            }
+            random_num(a, b) {
+                return a + (b - a) * this.random_dec();
+            }
 
-            return random;
-          };
-          this.prng = new runPRNG(sqrlSeed.substring(0, 64));
+            random_int(a, b) {
+                return Math.floor(this.random_num(a, b + 1));
+            }
+
+            random_choice(list) {
+                return list[this.random_int(0, list.length - 1)];
+            }
         }
 
-        // random number between 0 (inclusive) and 1 (exclusive)
-        random_dec() {
-          return this.prng();
+        function genSqrlSeed() {
+            let seed = "";
+            for (let i = 0; i < 64; i++) {
+                seed += Math.floor(Math.random() * 16).toString(16);
+            }
+            return seed;
         }
 
-        // random number between a (inclusive) and b (exclusive)
-        random_num(a, b) {
-          return a + (b - a) * this.random_dec();
+        let sqrlSeed;
+
+        if (sqrlParams.sqrlSeed) {
+        sqrlSeed = sqrlParams.sqrlSeed;
+        } else {
+            sqrlSeed = genSqrlSeed();
         }
 
-        // random integer between a (inclusive) and b (inclusive)
-        // requires a < b for proper probability distribution
-        random_int(a, b) {
-          return Math.floor(this.random_num(a, b + 1));
+        let R = new Randomnator();
+
+        // once sqrlPreview function is called in your code, the message is logged
+        // multiple times until our preview capture gets the image
+        function sqrlPreview() {
+            const sqrlInterval = setInterval(() => {
+                console.log("sqrl preview triggered");
+            }, 444);
+            setTimeout(() => {
+                clearInterval(sqrlInterval);
+            }, 3000);
         }
-
-        // random boolean with p as percent liklihood of true
-        random_bool(p) {
-          return this.random_dec() < p;
-        }
-
-        // random value in an array of items
-        random_choice(list) {
-          return list[this.random_int(0, list.length - 1)];
-        }
-      }
-
-      // the following two lines are only used for testing during development in your local
-      // environment and deleted for commented out for final .zip upload to Sqrl
-
-      /*
-      function genSqrlSeed() {
-        let seed = "";
-        for (let i = 0; i < 64; i++) {
-          seed += Math.floor(Math.random() * 16).toString(16);
-        }
-        return seed;
-      }
-      let sqrlSeed = genSqrlSeed();
-      */
-
-      // the following line is required in final .zip upload to Sqrl and deleted or commented
-      // out during development in your local environment
-
-      let sqrlSeed = new URLSearchParams(window.location.search).get(
-        "sqrlSeed"
-      );
-
-      let R = new Randomnator();
-
-      // once function is called the message is logged multiple times until our preview captures
-      // the image
-      function sqrlPreview() {
-        const sqrlInterval = setInterval(() => {
-          console.log("sqrl preview triggered");
-        }, 444);
-        setTimeout(() => {
-          clearInterval(sqrlInterval);
-        }, 3000);
-      }
     </script>
     <script type="text/javascript">
       var script1 = document.createElement("script");
